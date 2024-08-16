@@ -25,8 +25,12 @@ const Toy = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: addToCart,
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["cart-count", user?.id] });
+    onSuccess: async (newData) => {
+      queryClient.cancelQueries({ queryKey: ["cart-count", user?.id] });
+
+      queryClient.setQueryData(["cart-count", user?.id], () => {
+        return newData;
+      });
     },
     onError: () => {
       if (!user) {

@@ -1,4 +1,4 @@
-import { CartType } from "@/types";
+import { CartType, ToyDataType } from "@/types";
 import LoadingButton from "./LoadingButton";
 import API from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -37,17 +37,40 @@ const CartCard = ({ cart }: { cart: CartType }) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: delete_toy_from_cart,
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["user-cart", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["cart-count", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["cart-subtitle", user.id] });
+    onSuccess: async (newData) => {
+      queryClient.cancelQueries({ queryKey: ["cart-subtitle", user.id] });
+      queryClient.cancelQueries({ queryKey: ["cart-count", user.id] });
+      queryClient.cancelQueries({ queryKey: ["user-cart", user.id] });
+
+      queryClient.setQueryData<number>(["cart-count", user.id], (oldData) => {
+        if (!oldData) return 0;
+
+        return oldData - 1;
+      });
+
+      queryClient.setQueryData<ToyDataType[]>(
+        ["user-cart", user.id],
+        (oldData) => {
+          if (!oldData) return;
+
+          return oldData.filter((cart) => cart.id !== newData.cart.id);
+        },
+      );
+
+      queryClient.setQueryData<number>(["cart-subtitle", user.id], () => {
+        return newData.subtitle;
+      });
     },
   });
 
   const mutation = useMutation({
     mutationFn: handleUpdateCart,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart-subtitle", user.id] });
+    onSuccess: (newData) => {
+      queryClient.cancelQueries({ queryKey: ["cart-subtitle", user.id] });
+
+      queryClient.setQueryData<number>(["cart-subtitle", user.id], () => {
+        return newData;
+      });
     },
   });
 
