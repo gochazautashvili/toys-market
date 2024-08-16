@@ -31,7 +31,7 @@ const Navbar = () => {
             </Link>
             <Navigation className="hidden items-center gap-8 lg:flex" />
           </div>
-          <div className="flex h-full items-center">
+          <div className="flex h-full items-center gap-5">
             {user ? <CartButton handleOpenCart={handleOpenCart} /> : <SignIn />}
             <Menu
               onClick={() => setMenu(!menu)}

@@ -19,7 +19,7 @@ const CartButton = ({ handleOpenCart }: Props) => {
   return (
     <div
       onClick={handleOpenCart}
-      className="flex cursor-pointer items-center gap-2 pr-5"
+      className="flex cursor-pointer items-center gap-2"
     >
       <span>Cart</span>
       <ShoppingCart />
